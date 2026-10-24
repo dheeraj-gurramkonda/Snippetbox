@@ -1,3 +1,4 @@
+/* Apply a predictable box model and the site's shared typography everywhere. */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,6 +7,7 @@
     font-family: "Ubuntu Mono", monospace;
 }
 
+/* Let the page shell fill the viewport so the footer can sit below the content. */
 html, body {
     height: 100%;
 }
@@ -17,10 +19,12 @@ body {
     overflow-y: scroll;
 }
 
+/* Center the main page regions in a fixed-width content column. */
 header, nav, main, footer {
     padding: 2px calc((100% - 800px) / 2) 0;
 }
 
+/* Reserve vertical space around page content while allowing long content to scroll. */
 main {
     margin-top: 54px;
     margin-bottom: 54px;
@@ -66,6 +70,7 @@ textarea, input:not([type="submit"]) {
     font-family: "Ubuntu Mono", monospace;
 }
 
+/* Header uses the multicolor top stripe as the site's visual identity. */
 header {
     background-image: -webkit-linear-gradient(left, #34495e, #34495e 25%, #9b59b6 25%, #9b59b6 35%, #3498db 35%, #3498db 45%, #62cb31 45%, #62cb31 55%, #ffb606 55%, #ffb606 65%, #e67e22 65%, #e67e22 75%, #e74c3c 85%, #e74c3c 85%, #c0392b 85%, #c0392b 100%);
     background-image: -moz-linear-gradient(left, #34495e, #34495e 25%, #9b59b6 25%, #9b59b6 35%, #3498db 35%, #3498db 45%, #62cb31 45%, #62cb31 55%, #ffb606 55%, #ffb606 65%, #e67e22 65%, #e67e22 75%, #e74c3c 85%, #e74c3c 85%, #c0392b 85%, #c0392b 100%);
@@ -85,6 +90,7 @@ header a {
     text-decoration: none;
 }
 
+/* The navigation is split into primary links and account actions. */
 nav {
     border-bottom: 1px solid #E4E5E7;
     padding-top: 17px;
@@ -142,6 +148,7 @@ nav a.live:after {
     -webkit-transform: rotate(-45deg);
 }
 
+/* Share the same green treatment between link-style and form submit buttons. */
 a.button, input[type="submit"] {
     background-color: #62CB31;
     border-radius: 3px;
@@ -220,6 +227,7 @@ button:hover {
     cursor: pointer;
 }
 
+/* Keep snippets distinct from the page background and group their metadata. */
 .snippet {
     background-color: #FFFFFF;
     border: 1px solid #E4E5E7;
@@ -259,6 +267,7 @@ button:hover {
     float: right;
 }
 
+/* Flash banners make one-time feedback visible against the neutral page shell. */
 div.flash {
     color: #FFFFFF;
     font-weight: bold;
@@ -277,6 +286,7 @@ div.error {
     text-align: center;
 }
 
+/* Alternating row backgrounds make the latest-snippet list easier to scan. */
 table {
     background: white;
     border: 1px solid #E4E5E7;
@@ -302,6 +312,7 @@ tr:nth-child(2n) {
     background-color: #F7F9FA;
 }
 
+/* Footer mirrors the navigation's neutral background and full-width layout. */
 footer {
     border-top: 1px solid #E4E5E7;
     padding-top: 17px;

@@ -2,8 +2,9 @@
 
 {{define "main"}}
 <form action='/user/login' method='POST' novalidate>
-    <!-- Include the CSRF token -->
+    <!-- Include the request token required by the CSRF middleware. -->
     <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+    <!-- Authentication failures are form-wide; field errors belong beside inputs. -->
     {{range .Form.NonFieldErrors}}
         <div class='error'>{{.}}</div>
     {{end}}

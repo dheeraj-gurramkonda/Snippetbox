@@ -10,12 +10,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// UserModelInterface describes the account operations needed by HTTP handlers.
 type UserModelInterface interface {
     Insert(name, email, password string) error
     Authenticate(email, password string) (int, error)
     Exists(id int) (bool, error)
 }
 
+// Users represents the user fields returned from storage. Password data is
+// stored as a bcrypt hash rather than as the original password.
 type Users struct {
 	ID               int
 	Name             string
@@ -24,11 +27,14 @@ type Users struct {
 	Created          time.Time
 }
 
+// UserModel stores account records and authenticates users against MySQL.
 type UserModel struct {
 	DB *sql.DB
 }
 
 func (m *UserModel) Insert(name, email, password string) error {
+	// Hash passwords before they reach persistent storage; bcrypt includes a
+	// per-password salt in the resulting hash.
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		return err
@@ -42,6 +48,8 @@ func (m *UserModel) Insert(name, email, password string) error {
 		var mySQLErr *mysql.MySQLError
 		switch {
 		case errors.As(err, &mySQLErr) && mySQLErr.Number == 1062 && strings.Contains(mySQLErr.Message, "users_uc_email"):
+			// Convert this specific unique-email violation into a stable model
+			// error that handlers can map to a form message.
 			return ErrDuplicateEmail
 		default:
 			return err
@@ -61,6 +69,7 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	if err != nil {
 		switch {
 			case errors.Is(err, sql.ErrNoRows):
+				// Keep unknown addresses indistinguishable from wrong passwords.
 				return 0, ErrInvalidCredentials
 			default:
 				return 0, err
@@ -71,6 +80,7 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	if err != nil {
 		switch {
 			case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
+				// Both credential failure paths intentionally use one public error.
 				return 0, ErrInvalidCredentials
 			default:
 				return 0, err
@@ -80,6 +90,7 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	return id, nil
 }
 
+// Exists reports whether an account ID is still present in the database.
 func (m *UserModel) Exists(id int) (bool, error) {
 	var exists bool
 

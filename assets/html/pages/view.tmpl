@@ -1,6 +1,7 @@
 {{define "title"}}Snippet #{{.Snippet.ID}}{{end}}
 
 {{define "main"}}
+    <!-- The with block scopes dot to the selected snippet for the content below. -->
     {{with .Snippet}}
     <div class='snippet'>
         <div class='metadata'>
@@ -9,7 +10,7 @@
         </div>
         <pre><code>{{.Content}}</code></pre>
         <div class='metadata'>
-            <!-- Use the new template function here -->
+            <!-- humanDate normalizes both timestamps for consistent display. -->
             <time>Created: {{humanDate .Created}}</time>
             <time>Expires: {{humanDate .Expires}}</time>
         </div>

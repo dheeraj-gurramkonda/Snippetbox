@@ -2,6 +2,7 @@
 
 {{define "main"}}
     <h2>Latest Snippets</h2>
+    <!-- Render a table when records exist; otherwise show the empty state. -->
     {{if .Snippets}}
      <table>
         <tr>

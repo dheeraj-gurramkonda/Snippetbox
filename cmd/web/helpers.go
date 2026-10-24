@@ -28,6 +28,8 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
+// render executes a cached page into a buffer before writing the response.
+// Buffering prevents a partially rendered page from being sent if execution fails.
 func (app *application) render(w http.ResponseWriter, r *http.Request, status int, page string, data templateData) error {
 	ts, ok := app.templateCache[page]
 	if !ok {
@@ -46,6 +48,8 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 	return err
 }
 
+// newTemplateData fills fields shared by all pages, including one-time session
+// messages and request-specific authentication and CSRF state.
 func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		CurrentYear: time.Now().Year(),
@@ -55,6 +59,7 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 	}
 }
 
+// decodePostForm parses URL-encoded request data and maps it onto dst.
 func (app *application) decodePostForm(r *http.Request, dst any) error {
 	err := r.ParseForm()
 	if err != nil {
@@ -64,6 +69,8 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 	err = app.formDecoder.Decode(dst, r.PostForm)
 	if err != nil {
 		if _, ok := errors.AsType[*form.InvalidDecoderError](err); ok {
+			// An invalid decoder configuration is a programming error, rather
+			// than a malformed user submission.
 			panic(err)
 		}
 		return err
@@ -71,6 +78,7 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 	return nil
 }
 
+// isAuthenticated reads the flag set by the authentication middleware.
 func (app *application) isAuthenticated(r *http.Request) bool {
 	isAuthenticated, ok := r.Context().Value(contextKeyIsAuthenticated).(bool)
 	if !ok {

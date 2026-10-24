@@ -2,6 +2,7 @@
 <!doctype html>
 <html lang='en'>
     <head>
+        <!-- Shared document metadata and assets are inherited by every page. -->
         <meta charset='utf-8'>
         <title>{{template "title" .}} - Snippetbox</title>
         <link rel='stylesheet' href='/static/css/main.css'>
@@ -14,13 +15,14 @@
         </header>
         {{template "nav" .}}
         <main>
-            <!-- Display the flash message if one exists -->
+            <!-- Flash messages are popped from the session and shown once. -->
             {{with .Flash}}
                 <div class='flash'>{{.}}</div>
             {{end}}
             {{template "main" .}}
         </main>
         <footer>
+            <!-- The year comes from templateData so it stays consistent per render. -->
             Powered by <a href='https://go.dev/'>Go</a> in {{.CurrentYear}}
         </footer>
         <script src='/static/js/main.js' type='text/javascript'></script>

@@ -22,6 +22,8 @@ import (
 
 const testServerBaseURL = "https://testserver"
 
+// newTestApplication wires lightweight model doubles and real templates so
+// handler tests exercise the HTTP flow without requiring MySQL.
 func newTestApplication(t *testing.T) *application {
     templateCache, err := newTemplateCache()
     if err != nil {
@@ -44,10 +46,13 @@ func newTestApplication(t *testing.T) *application {
     }
 }
 
+// testServer adds cookie management and request helpers to httptest.Server.
 type testServer struct {
     *httptest.Server
 }
 
+// newTestServer preserves cookies between requests while exposing redirects to
+// assertions instead of following them automatically.
 func newTestServer(t *testing.T, h http.Handler) *testServer {
     ts := httptest.NewTestServer(t, h)
 
@@ -66,6 +71,8 @@ func newTestServer(t *testing.T, h http.Handler) *testServer {
     return &testServer{ts}
 }
 
+// resetClientCookieJar isolates scenarios that must start without prior session
+// or CSRF cookies.
 func (ts *testServer) resetClientCookieJar(t *testing.T) {
     jar, err := cookiejar.New(nil)
     if err != nil {
@@ -76,6 +83,7 @@ func (ts *testServer) resetClientCookieJar(t *testing.T) {
 }
 
 
+// testResponse captures the parts of an HTTP response used by handler tests.
 type testResponse struct {
     status  int
     headers http.Header
@@ -83,6 +91,7 @@ type testResponse struct {
     body    string
 }
 
+// get performs a GET request and returns its status, headers, cookies, and body.
 func (ts *testServer) get(t *testing.T, urlPath string) testResponse {
     req, err := http.NewRequest(http.MethodGet, testServerBaseURL+urlPath, nil)
     if err != nil {
@@ -108,6 +117,8 @@ func (ts *testServer) get(t *testing.T, urlPath string) testResponse {
     }
 }
 
+// extractCSRFToken reads the hidden form token so tests can submit a valid
+// same-session form request.
 func extractCSRFToken(t *testing.T, body string) string {
     csrfTokenRX := regexp.MustCompile(`<input type='hidden' name='csrf_token' value='(.+)'>`)
     matches := csrfTokenRX.FindStringSubmatch(body)
@@ -117,6 +128,8 @@ func extractCSRFToken(t *testing.T, body string) string {
     return html.UnescapeString(matches[1])
 }
 
+// postForm submits URL-encoded form data with the headers expected from a
+// same-origin browser request.
 func (ts *testServer) postForm(t *testing.T, urlPath string, form url.Values) testResponse {
     req, err := http.NewRequest(http.MethodPost, testServerBaseURL+urlPath, strings.NewReader(form.Encode()))
     if err != nil {

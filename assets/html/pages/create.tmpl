@@ -2,8 +2,9 @@
 
 {{define "main"}}
 <form action='/snippet/create' method='POST'>
-    <!-- Include the CSRF token -->
+    <!-- Include the request token required by the CSRF middleware. -->
     <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+    <!-- Show field-specific validation feedback and preserve prior input. -->
     <div>
         <label>Title:</label>
         {{with .Form.FieldErrors.title}}
@@ -23,6 +24,7 @@
         {{with .Form.FieldErrors.expires}}
             <label class='error'>{{.}}</label>
         {{end}}
+        <!-- These values must match the expiry options accepted by the handler. -->
         <input type='radio' name='expires' value='365' {{if (eq .Form.Expires 365)}}checked{{end}}> One Year
         <input type='radio' name='expires' value='7' {{if (eq .Form.Expires 7)}}checked{{end}}> One Week
         <input type='radio' name='expires' value='1' {{if (eq .Form.Expires 1)}}checked{{end}}> One Day

@@ -10,6 +10,8 @@ import (
     "snippetbox.dheeraj.net/internal/assert"
 )
 
+// TestCommonHeaders verifies that middleware adds the expected headers without
+// changing the downstream handler's status or response body.
 func TestCommonHeaders(t *testing.T) {
     // Initialize a new httptest.ResponseRecorder and dummy http.Request.
     rr := httptest.NewRecorder()

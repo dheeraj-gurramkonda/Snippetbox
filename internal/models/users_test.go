@@ -6,6 +6,8 @@ import (
 	"snippetbox.dheeraj.net/internal/assert"
 )
 
+// TestUserModelExists is an integration test for the database-backed existence
+// query, including valid, zero, and unknown IDs.
 func TestUserModelExists(t *testing.T) {
 	tests := []struct {
         name   string
@@ -31,6 +33,7 @@ func TestUserModelExists(t *testing.T) {
 
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
+			// Database integration tests are optional in the short test suite.
 			if testing.Short() {
         		t.Skip("models: skipping integration test")
     		}

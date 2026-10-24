@@ -9,6 +9,8 @@ import (
 	"snippetbox.dheeraj.net/internal/assert"
 )
 
+// TestPing checks that the health endpoint responds successfully with its
+// expected plain-text payload.
 func TestPing(t *testing.T) {
     app := newTestApplication(t)
 
@@ -20,6 +22,8 @@ func TestPing(t *testing.T) {
     assert.Equal(t, res.body, "OK")
 }
 
+// TestSnippetView checks successful rendering and rejection of malformed,
+// invalid, and unknown snippet IDs.
 func TestSnippetView(t *testing.T) {
     app := newTestApplication(t)
 
@@ -67,6 +71,7 @@ func TestSnippetView(t *testing.T) {
 
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
+            // Give each case an independent session and CSRF cookie.
             ts.resetClientCookieJar(t)
 
             res := ts.get(t, tt.urlPath) 
@@ -76,6 +81,8 @@ func TestSnippetView(t *testing.T) {
     }
 }
 
+// TestUserSignup covers registration, CSRF enforcement, input validation, and
+// the duplicate-email error displayed by the form.
 func TestUserSignup(t *testing.T) {
     app := newTestApplication(t)
     ts := newTestServer(t, app.routes())
@@ -171,6 +178,7 @@ func TestUserSignup(t *testing.T) {
 
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
+            // Keep cookie state from another scenario from satisfying this case's CSRF check.
             ts.resetClientCookieJar(t)
 
             res := ts.get(t, "/user/signup")

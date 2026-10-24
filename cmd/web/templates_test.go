@@ -7,6 +7,8 @@ import (
 	"snippetbox.dheeraj.net/internal/assert"
 )
 
+// TestHumanDate checks UTC rendering, blank zero timestamps, and conversion
+// from a non-UTC timezone to the common display timezone.
 func TestHumanDate(t *testing.T) {
 	tests := []struct {
         name string

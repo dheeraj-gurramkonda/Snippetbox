@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+// Equal compares values deeply so tests can check slices, structs, and other
+// non-comparable values in addition to ordinary scalars.
 func Equal[T any](t *testing.T, got , want T) {
 	t.Helper()
     if !isEqual(got, want) {
@@ -12,6 +14,8 @@ func Equal[T any](t *testing.T, got , want T) {
     }
 }
 
+// isEqual treats nil-able values with nil underlying contents as equal before
+// delegating structural comparison to reflect.DeepEqual.
 func isEqual[T any](got, want T) bool {
 	if isNil(got) && isNil(want) {
         return true
@@ -20,6 +24,7 @@ func isEqual[T any](got, want T) bool {
     return reflect.DeepEqual(got, want)
 }
 
+// isNil safely checks nil-capable kinds without calling IsNil on scalar values.
 func isNil(v any) bool {
 	if v == nil {
         return true
@@ -34,6 +39,7 @@ func isNil(v any) bool {
     return false
 }
 
+// NotEqual fails the test when got and want are the same comparable value.
 func NotEqual[T comparable](t *testing.T, got, want T) {
     t.Helper()
 
@@ -42,6 +48,7 @@ func NotEqual[T comparable](t *testing.T, got, want T) {
     }
 }
 
+// True fails the test unless got is true.
 func True(t *testing.T, got bool) {
     t.Helper()
 
@@ -50,6 +57,7 @@ func True(t *testing.T, got bool) {
     }
 }
 
+// False fails the test unless got is false.
 func False(t *testing.T, got bool) {
     t.Helper()
 
@@ -58,6 +66,7 @@ func False(t *testing.T, got bool) {
     }
 }
 
+// Nil and NotNil check whether an interface contains a nil value.
 func Nil(t *testing.T, got any) {
     t.Helper()
 

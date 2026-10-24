@@ -19,6 +19,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// application holds the dependencies shared by HTTP handlers, so handlers
+// don't need to manage database, logging, template, or session setup themselves.
 type application struct {
     logger        *slog.Logger
     snippets       models.SnippetModelInterface 
@@ -29,12 +31,14 @@ type application struct {
 }
 
 func main() {
+	// Command-line flags let deployments choose the listening address and database.
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
+	// Open and verify the database connection before serving requests.
 	db, err := openDB(*dsn)
 	if err != nil {
 		logger.Error(err.Error())
@@ -42,6 +46,7 @@ func main() {
 	}
 	defer db.Close()
 
+	// Parse templates once at startup; requests can reuse the prepared cache.
 	templateCache, err := newTemplateCache()
 	if err != nil {
 		logger.Error(err.Error())
@@ -50,6 +55,7 @@ func main() {
 
 	formDecoder := form.NewDecoder()
 
+	// Persist sessions in MySQL and expire them after twelve hours.
 	sessionManager := scs.New()
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
@@ -63,6 +69,8 @@ func main() {
 		sessionManager: sessionManager,
 	}
 
+	// Require modern TLS and bound how long connections may remain idle or
+	// spend reading and writing a request.
 	tlsConfig := &tls.Config{
 		MinVersion: tls.VersionTLS13,
 	}
@@ -79,11 +87,14 @@ func main() {
 
 	logger.Info("starting server", "addr", *addr)
 
+	// ListenAndServeTLS blocks until the server stops or encounters an error.
 	err = srv.ListenAndServeTLS("./assets/tls/cert.pem", "./assets/tls/key.pem")
 	logger.Error(err.Error())
 	os.Exit(1)
 }
 
+// openDB creates a database handle and verifies that the configured database
+// can be reached before returning it to the application.
 func openDB(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -92,6 +103,8 @@ func openDB(dsn string) (*sql.DB, error) {
 
 	err = db.Ping()
 	if err != nil {
+		// sql.Open is lazy, so close the handle if the first real connection
+		// check fails.
 		db.Close()
 		return nil, err
 	}

@@ -1,3 +1,4 @@
+-- Snippet records use an auto-generated key and timestamps for expiry filtering.
 CREATE TABLE snippets (
     id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(100) NOT NULL,
@@ -6,8 +7,10 @@ CREATE TABLE snippets (
     expires DATETIME NOT NULL
 );
 
+-- Supports chronological lookup patterns for snippet records.
 CREATE INDEX idx_snippets_created ON snippets(created);
 
+-- Email is unique so duplicate registrations are rejected by the database.
 CREATE TABLE users (
     id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
@@ -18,6 +21,7 @@ CREATE TABLE users (
 
 ALTER TABLE users ADD CONSTRAINT users_uc_email UNIQUE (email);
 
+-- Fixed fixture account used by integration tests; the stored value is a bcrypt hash.
 INSERT INTO users (name, email, hashed_password, created) VALUES (
     'Alice Jones',
     'alice@example.com',
